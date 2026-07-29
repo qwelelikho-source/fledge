@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import AnimatedCounter from "@/components/AnimatedCounter";
 import DeparturesBoard from "@/components/DeparturesBoard";
 
 const trust = [
@@ -24,9 +25,9 @@ const benefits = [
 ];
 
 const stats = [
-  { label: "Live storefronts", value: "12.5K+" },
-  { label: "Products ready", value: "4.2K" },
-  { label: "Fastest setup", value: "8 min" },
+  { label: "Live storefronts", value: 12500, suffix: "+" },
+  { label: "Products ready", value: 4200, suffix: "" },
+  { label: "Fastest setup", value: 8, suffix: " min" },
 ];
 
 export default function Home() {
@@ -38,9 +39,15 @@ export default function Home() {
         <div className="relative z-10 mx-auto max-w-7xl px-6">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <div className="badge gap-3 rounded-full border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.92)] px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.32em] text-[var(--color-neutral-1)] shadow-sm shadow-[0_8px_24px_-14px_rgba(15,23,42,0.12)] mb-4">
-                <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
-                Live launch-ready products · no stock risk
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="badge gap-3 rounded-full border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.92)] px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.32em] text-[var(--color-neutral-1)] shadow-sm shadow-[0_8px_24px_-14px_rgba(15,23,42,0.12)]">
+                  <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
+                  Live launch-ready products · no stock risk
+                </div>
+                <div className="badge gap-3 rounded-full border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.92)] px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.32em] text-[var(--color-neutral-1)] shadow-sm shadow-[0_8px_24px_-14px_rgba(15,23,42,0.12)]">
+                  <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
+                  New · Connect Instagram & TikTok
+                </div>
               </div>
 
               <div className="mb-8">
@@ -49,6 +56,9 @@ export default function Home() {
                 </h1>
                 <p className="max-w-2xl text-xl leading-9 text-ink/80 sm:text-2xl mb-8">
                   Create a premium online store with ready-made products, direct supplier shipping, and a brand-ready experience that converts.
+                </p>
+                <p className="max-w-2xl text-sm leading-6 text-[var(--color-neutral-1)] sm:text-base">
+                  Connect your TikTok, Instagram, and Facebook to advertise products directly from your storefront — no extra apps needed.
                 </p>
               </div>
 
@@ -63,8 +73,17 @@ export default function Home() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-24">
                 {stats.map((stat) => (
-                  <div key={stat.label} className="rounded-2xl border border-neutral-2 bg-white p-6 shadow-soft">
-                    <p className="text-3xl font-display font-bold text-[var(--color-text)]">{stat.value}</p>
+                  <div
+                    key={stat.label}
+                    className="rounded-2xl border border-neutral-2 bg-white p-6 shadow-soft"
+                  >
+                    <AnimatedCounter
+                      value={stat.value}
+                      suffix={stat.suffix}
+                      formatAsK={stat.value >= 1000}
+                      decimals={1}
+                      className="text-3xl font-display font-bold text-[var(--color-text)]"
+                    />
                     <p className="mt-2 text-sm uppercase tracking-[0.24em] text-[var(--color-neutral-1)]">
                       {stat.label}
                     </p>
@@ -72,19 +91,26 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="grid gap-4 pt-8 sm:grid-cols-2">
-                <div className="group overflow-hidden rounded-[2rem] border border-[rgba(15,23,42,0.08)] bg-gradient-to-br from-[rgba(203,213,255,0.18)] via-[rgba(255,255,255,0.9)] to-[rgba(203,213,255,0.1)] p-6 shadow-soft transition hover:-translate-y-1 hover:shadow-bright">
+              <div className="grid gap-4 pt-8 grid-cols-1 lg:grid-cols-3">
+                <div className="rounded-2xl border border-neutral-2 bg-white p-6 shadow-soft">
                   <p className="text-sm uppercase tracking-[0.35em] text-[var(--color-accent)]">Premium launch</p>
                   <h3 className="mt-4 text-2xl font-semibold text-[var(--color-text)]">Drag-and-drop storefront design</h3>
                   <p className="mt-4 text-sm leading-6 text-[var(--color-neutral-1)]">
                     Use polished templates built for fast conversions, with image-led product pages and a customizable brand feel.
                   </p>
                 </div>
-                <div className="group overflow-hidden rounded-[2rem] border border-[rgba(15,23,42,0.08)] bg-[var(--color-surface-soft)] p-6 shadow-soft transition hover:-translate-y-1 hover:shadow-bright">
+                <div className="rounded-2xl border border-neutral-2 bg-white p-6 shadow-soft">
                   <p className="text-sm uppercase tracking-[0.35em] text-[var(--color-accent)]">Fast fulfillment</p>
                   <h3 className="mt-4 text-2xl font-semibold text-[var(--color-text)]">Order flow that really moves</h3>
                   <p className="mt-4 text-sm leading-6 text-[var(--color-neutral-1)]">
                     Orders route automatically to suppliers, with live status updates and shipping notifications your customers can trust.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-neutral-2 bg-white p-6 shadow-soft">
+                  <p className="text-sm uppercase tracking-[0.35em] text-[var(--color-accent)]">Social ready</p>
+                  <h3 className="mt-4 text-2xl font-semibold text-[var(--color-text)]">Advertise where your customers already are</h3>
+                  <p className="mt-4 text-sm leading-6 text-[var(--color-neutral-1)]">
+                    Connect your TikTok, Instagram, and Facebook to post products straight from your storefront — no extra apps, no re-uploading.
                   </p>
                 </div>
               </div>
