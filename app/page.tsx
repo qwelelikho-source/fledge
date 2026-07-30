@@ -52,10 +52,10 @@ export default function Home() {
 
               <div className="mb-8">
                 <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-tight text-ink leading-tight sm:text-5xl lg:text-6xl xl:text-7xl mb-4">
-                  Launch a modern storefront<br className="hidden sm:block" /> that shines from day one.
+                  Your first business,<br className="hidden sm:block" /> already in flight.
                 </h1>
                 <p className="max-w-2xl text-xl leading-9 text-ink/80 sm:text-2xl mb-8">
-                  Create a premium online store with ready-made products, direct supplier shipping, and a brand-ready experience that converts.
+                  Launch a real online store with no inventory, no upfront cost, and no business experience needed — built for young, first-time founders starting their first venture.
                 </p>
                 <p className="max-w-2xl text-sm leading-6 text-[var(--color-neutral-1)] sm:text-base">
                   Connect your TikTok, Instagram, and Facebook to advertise products directly from your storefront — no extra apps needed.
