@@ -49,7 +49,7 @@ const plans = [
 
 export default function Pricing() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+    <section className="mx-auto max-w-6xl px-6 pt-32 pb-16 sm:pt-40 sm:pb-24">
       <div className="max-w-xl">
         <p className="font-mono text-xs uppercase tracking-widest text-signal">
           Pricing
