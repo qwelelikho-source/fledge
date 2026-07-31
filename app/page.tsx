@@ -33,13 +33,13 @@ const stats = [
 export default function Home() {
   return (
     <>
-      <section className="hero relative overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-100 to-white pt-6 pb-24">
+      <section className="hero relative overflow-hidden bg-gradient-to-br from-indigo-50 via-violet-100 to-white pt-0 pb-16">
         <div className="absolute left-1/2 top-14 h-[380px] w-[380px] -translate-x-1/2 rounded-full bg-indigo-500/8 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-6">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <div className="flex flex-wrap items-center gap-3 mb-4">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="badge gap-3 rounded-full border border-[rgba(15,23,42,0.08)] bg-[rgba(255,255,255,0.92)] px-4 py-1.5 text-[0.72rem] uppercase tracking-[0.32em] text-[var(--color-neutral-1)] shadow-sm shadow-[0_8px_24px_-14px_rgba(15,23,42,0.12)]">
                   <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
                   Live launch-ready products · no stock risk
@@ -50,19 +50,19 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="mb-8">
-                <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-tight text-ink leading-tight sm:text-5xl lg:text-6xl xl:text-7xl mb-4">
-                  Your first business,<br className="hidden sm:block" /> already in flight.
+              <div className="mb-3">
+                <h1 className="max-w-3xl font-display text-2xl font-semibold tracking-tight text-ink leading-[1.05] sm:text-3xl lg:text-4xl xl:text-5xl mb-2">
+                  Your first business, already in flight.
                 </h1>
-                <p className="max-w-2xl text-xl leading-9 text-ink/80 sm:text-2xl mb-8">
+                <p className="max-w-2xl text-base leading-6 text-ink/80 sm:text-lg mb-2">
                   Launch a real online store with no inventory, no upfront cost, and no business experience needed — built for young, first-time founders starting their first venture.
                 </p>
-                <p className="max-w-2xl text-sm leading-6 text-[var(--color-neutral-1)] sm:text-base">
+                <p className="max-w-2xl text-sm leading-6 text-[var(--color-neutral-1)]">
                   Connect your TikTok, Instagram, and Facebook to advertise products directly from your storefront — no extra apps needed.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 mt-8">
+              <div className="flex flex-wrap items-center gap-4 mt-3">
                 <Link href="/pricing" className="btn btn-primary">
                   Start your free month
                 </Link>
@@ -71,7 +71,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-24">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
