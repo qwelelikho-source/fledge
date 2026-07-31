@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import DeparturesBoard from "@/components/DeparturesBoard";
+import PlatformLogos from "@/components/PlatformLogos";
 
 const trust = [
   { k: "0", label: "inventory held by you" },
@@ -57,12 +58,11 @@ export default function Home() {
                 <p className="max-w-2xl text-base leading-6 text-ink/80 sm:text-lg mb-2">
                   Launch a real online store with no inventory, no upfront cost, and no business experience needed — built for young, first-time founders starting their first venture.
                 </p>
-                <p className="max-w-2xl text-sm leading-6 text-[var(--color-neutral-1)]">
-                  Connect your TikTok, Instagram, and Facebook to advertise products directly from your storefront — no extra apps needed.
-                </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 mt-3">
+              <PlatformLogos />
+
+              <div className="flex flex-wrap items-center gap-4 mt-8">
                 <Link href="/pricing" className="btn btn-primary">
                   Start your free month
                 </Link>
