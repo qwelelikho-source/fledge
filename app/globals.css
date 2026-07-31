@@ -243,9 +243,10 @@ body {
   isolation: isolate;
 }
 
-/* Ensure content below sticky header isn't hidden */
+/* Sticky header already occupies space in normal flow;
+   small intentional breathing room below it */
 .site-main {
-  padding-top: var(--nav-height);
+  padding-top: 1.5rem;
 }
 
 .site-main > * {

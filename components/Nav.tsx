@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 const links = [
@@ -12,6 +12,8 @@ const links = [
 
 export default function Nav() {
   const headerRef = useRef<HTMLElement | null>(null);
+  const lastScrollY = useRef(0);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     function setNavHeight() {
@@ -28,8 +30,37 @@ export default function Nav() {
     };
   }, []);
 
+  useEffect(() => {
+    function handleScroll() {
+      const currentScrollY = window.scrollY;
+
+      // Always show header near the top of the page
+      if (currentScrollY < 80) {
+        setHidden(false);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      const isScrollingDown = currentScrollY > lastScrollY.current;
+
+      // Only toggle after a small threshold to avoid jitter on tiny scrolls
+      if (Math.abs(currentScrollY - lastScrollY.current) > 8) {
+        setHidden(isScrollingDown);
+        lastScrollY.current = currentScrollY;
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header ref={headerRef} className="site-header sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)] backdrop-blur-2xl shadow-soft">
+    <header
+      ref={headerRef}
+      className={`site-header sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)] backdrop-blur-2xl shadow-soft transition-transform duration-300 ease-in-out ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8">
         <Link href="/" className="link inline-flex items-center gap-3 text-[var(--color-text)]">
           <span className="font-display text-2xl font-bold tracking-tight">Fledge</span>

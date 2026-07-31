@@ -126,27 +126,45 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-white mx-auto max-w-7xl px-6 py-24">
-        <div className="mb-14 text-center space-y-6">
-          <p className="font-mono text-sm uppercase tracking-[0.4em] text-[var(--color-accent)]">Fast, polished, unforgettable</p>
-          <h2 className="text-4xl font-display font-semibold tracking-tight text-[var(--color-text)] sm:text-5xl">
-            Everything you need to launch a standout store.
-          </h2>
-          <p className="mx-auto max-w-2xl text-lg leading-8 text-[var(--color-neutral-1)]">
-            Put your storefront in front of customers with a design-first experience, automated fulfillment, and hands-off order flow.
-          </p>
-        </div>
+      {/*
+        NOTE: The original background referenced /images/hero-bg.svg, which
+        wasn't a real SVG file (Edge saved an HTML wrapper instead of the
+        actual image). Using a CSS gradient here so the section always
+        renders correctly. Once you have a genuine .svg file, drop it into
+        public/images/hero-bg.svg and swap the style prop below for:
+        style={{ backgroundImage: "url('/images/hero-bg.svg')" }}
+      */}
+      <section
+        className="relative overflow-hidden bg-cover bg-center px-6 py-24"
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, #eef2ff 0%, #ede9fe 45%, #ffffff 100%)",
+        }}
+      >
+        <div className="absolute inset-0 bg-white/60" />
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {benefits.map((benefit) => (
-            <div key={benefit.title} className="group rounded-[2rem] border border-transparent bg-gradient-to-br from-white to-sky/5 p-8 shadow-soft transition hover:-translate-y-1 hover:border-ink/10 hover:shadow-bright">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky/10 text-sky transition group-hover:bg-sky/15">
-                <span className="text-xl font-bold">→</span>
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mb-14 text-center space-y-6">
+            <p className="font-mono text-sm uppercase tracking-[0.4em] text-[var(--color-accent)]">Fast, polished, unforgettable</p>
+            <h2 className="text-4xl font-display font-semibold tracking-tight text-[var(--color-text)] sm:text-5xl">
+              Everything you need to launch a standout store.
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg leading-8 text-[var(--color-neutral-1)]">
+              Put your storefront in front of customers with a design-first experience, automated fulfillment, and hands-off order flow.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {benefits.map((benefit) => (
+              <div key={benefit.title} className="group rounded-[2rem] border border-transparent bg-white/90 backdrop-blur-sm p-8 shadow-soft transition hover:-translate-y-1 hover:border-ink/10 hover:shadow-bright">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky/10 text-sky transition group-hover:bg-sky/15">
+                  <span className="text-xl font-bold">→</span>
+                </div>
+                <h3 className="mt-6 text-2xl font-semibold text-ink">{benefit.title}</h3>
+                <p className="mt-4 text-sm leading-6 text-ink/75">{benefit.detail}</p>
               </div>
-              <h3 className="mt-6 text-2xl font-semibold text-ink">{benefit.title}</h3>
-              <p className="mt-4 text-sm leading-6 text-ink/75">{benefit.detail}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
