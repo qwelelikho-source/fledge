@@ -66,6 +66,9 @@ export default function Home() {
                 <Link href="/pricing" className="btn btn-primary">
                   Start your free month
                 </Link>
+                <Link href="/signup" className="btn btn-secondary">
+                  Create account
+                </Link>
                 <Link href="/how-it-works" className="btn btn-secondary">
                   See the process
                 </Link>

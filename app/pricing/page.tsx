@@ -113,15 +113,16 @@ export default function Pricing() {
               ))}
             </ul>
 
-            <button
-              className={`focus-ring mt-8 rounded-full px-6 py-3 text-sm font-semibold transition ${
+            <a
+              href={`/signup?plan=${p.name.toLowerCase()}`}
+              className={`focus-ring mt-8 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition ${
                 p.highlight
                   ? "bg-volt text-ink hover:bg-paper"
                   : "bg-ink text-paper hover:bg-signal hover:text-ink"
               }`}
             >
               {p.cta}
-            </button>
+            </a>
           </div>
         ))}
       </div>

@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PlanTier {
+  STARTER
+  PRO
+  STUDIO
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  idNumber  String
+  dateOfBirth DateTime?
+  isMinor   Boolean  @default(false)
+
+  parentalConsent ParentalConsent?
+
+  storefronts Storefront[]
+  subscription Subscription?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ParentalConsent {
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @unique
+
+  guardianName  String
+  guardianEmail String
+  confirmedAt   DateTime?
+  status        String   @default("pending")
+
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+
+  plan      PlanTier @default(STARTER)
+  trialEndsAt DateTime?
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Storefront {
+  id        String   @id @default(cuid())
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   String
+
+  name      String
+  slug      String   @unique
+  domain    String?
+
+  products  Product[]
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  storefront  Storefront @relation(fields: [storefrontId], references: [id])
+  storefrontId String
+
+  title       String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  imageUrl    String?
+  supplierSku String?
+
+  orderItems  OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id           String   @id @default(cuid())
+  storefront   Storefront @relation(fields: [storefrontId], references: [id])
+  storefrontId String
+
+  customerName  String
+  customerEmail String
+  shippingAddress String
+
+  status       OrderStatus @default(PENDING)
+  items        OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(10, 2)
+}
