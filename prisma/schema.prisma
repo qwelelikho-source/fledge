@@ -21,12 +21,13 @@ enum OrderStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  idNumber  String
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  clerkUserId String?  @unique
+  idNumber    String
   dateOfBirth DateTime?
-  isMinor   Boolean  @default(false)
+  isMinor     Boolean  @default(false)
 
   parentalConsent ParentalConsent?
 

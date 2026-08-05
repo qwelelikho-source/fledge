@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Inter, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -36,9 +37,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="font-body antialiased">
-        <Nav />
-        <main className="site-main">{children}</main>
-        <Footer />
+        <ClerkProvider>
+          <Nav />
+          <main className="site-main">{children}</main>
+          <Footer />
+        </ClerkProvider>
       </body>
     </html>
   );

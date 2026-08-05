@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PlanTier, Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import clerkClient from "@/lib/clerk";
 
 function calculateAge(dateString: string) {
   const dob = new Date(dateString);
@@ -33,7 +34,18 @@ function mapPlanTier(plan: string): PlanTier {
   return PlanTier.STARTER;
 }
 
+function splitName(fullName: string) {
+  const [firstName, ...rest] = fullName.split(" ").filter(Boolean);
+  return {
+    firstName: firstName || fullName,
+    lastName: rest.join(" "),
+  };
+}
+
 export async function POST(request: Request) {
+  let pendingUserId: string | null = null;
+  let clerkUserId: string | null = null;
+
   try {
     const body = await request.json();
     const name = String(body?.name ?? "").trim();
@@ -82,16 +94,74 @@ export async function POST(request: Request) {
       }
     }
 
+    const existingLocalUser = await prisma.user.findUnique({ where: { email } });
+    if (existingLocalUser) {
+      return NextResponse.json(
+        { error: "An account with this email already exists." },
+        { status: 409 }
+      );
+    }
+
     const planTier = mapPlanTier(plan);
     const trialEndsAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const { firstName, lastName } = splitName(name);
+    const rawUsername = `${firstName || email.split("@")[0]}${lastName || "user"}`
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "")
+      .substring(0, 30);
+    const username = rawUsername || email.split("@")[0];
 
-    const user = await prisma.user.create({
+    console.log("Signup request body:", {
+      name,
+      email,
+      idNumber,
+      dateOfBirth,
+      plan,
+      guardianName,
+      guardianEmail,
+      isMinor,
+      username,
+    });
+
+    const createdUser = await prisma.user.create({
       data: {
         email,
         name,
         idNumber,
         dateOfBirth: dob,
         isMinor,
+      },
+    });
+
+    pendingUserId = createdUser.id;
+
+    const clerkPayload = {
+      emailAddress: [email],
+      username,
+      firstName,
+      lastName: lastName || undefined,
+      externalId: createdUser.id,
+      skipPasswordRequirement: true,
+      publicMetadata: {
+        plan: planTier,
+        isMinor,
+        idNumber,
+        dateOfBirth,
+        guardianName: isMinor ? guardianName : undefined,
+        guardianEmail: isMinor ? guardianEmail : undefined,
+      },
+    };
+
+    console.log("Clerk payload:", clerkPayload);
+
+    const clerkUser = await clerkClient.users.createUser(clerkPayload);
+
+    clerkUserId = clerkUser.id;
+
+    const user = await prisma.user.update({
+      where: { id: createdUser.id },
+      data: {
+        clerkUserId,
         subscription: {
           create: {
             plan: planTier,
@@ -113,6 +183,14 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, userId: user.id }, { status: 200 });
   } catch (error) {
+    if (clerkUserId) {
+      await clerkClient.users.deleteUser(clerkUserId).catch(() => null);
+    }
+
+    if (pendingUserId && !clerkUserId) {
+      await prisma.user.delete({ where: { id: pendingUserId } }).catch(() => null);
+    }
+
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json(
         { error: "An account with this email already exists." },

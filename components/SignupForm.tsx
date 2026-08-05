@@ -64,10 +64,17 @@ export default function SignupForm({ plan }: SignupFormProps) {
         }),
       });
 
-      const result = await response.json();
+      let result: { error?: string; message?: string; success?: boolean } | null = null;
 
-      if (!response.ok) {
-        setError(result.error || "Unable to create your account. Please try again.");
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (!response.ok || result?.success === false) {
+        const message = result?.error || result?.message || "Unable to create your account. Please try again.";
+        setError(message);
         setIsLoading(false);
         return;
       }
