@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface SignupFormProps {
   plan: string;
@@ -208,6 +209,13 @@ export default function SignupForm({ plan }: SignupFormProps) {
       >
         {isLoading ? "Creating account..." : "Create account"}
       </button>
+
+      <div className="mt-6 text-center text-sm text-ink/70">
+        Already have an account?{' '}
+        <Link href="/auth" className="font-semibold text-ink underline-offset-4 hover:underline">
+          Use social login
+        </Link>
+      </div>
     </form>
   );
 }

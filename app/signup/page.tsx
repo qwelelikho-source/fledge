@@ -1,4 +1,5 @@
 import SignupForm from "@/components/SignupForm";
+import AuthSocialButtons from "@/components/AuthSocialButtons";
 
 interface SignupPageProps {
   searchParams: {
@@ -23,7 +24,14 @@ export default function SignupPage({ searchParams }: SignupPageProps) {
         </p>
       </div>
 
-      <SignupForm plan={plan} />
+      <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr]">
+        <div>
+          <SignupForm plan={plan} />
+        </div>
+        <aside>
+          <AuthSocialButtons />
+        </aside>
+      </div>
     </section>
   );
 }
