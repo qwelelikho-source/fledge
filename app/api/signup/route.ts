@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PlanTier, Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 function calculateAge(dateString: string) {
   const dob = new Date(dateString);
@@ -109,18 +110,6 @@ export async function POST(request: Request) {
       .substring(0, 30);
     const username = rawUsername || email.split("@")[0];
 
-    console.log("Signup request body:", {
-      name,
-      email,
-      idNumber,
-      dateOfBirth,
-      plan,
-      guardianName,
-      guardianEmail,
-      isMinor,
-      username,
-    });
-
     const createdUser = await prisma.user.create({
       data: {
         email,
@@ -168,7 +157,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error("Signup API error:", error);
+    logger.error("Signup API error", error as Error);
     return NextResponse.json(
       { error: "Unable to complete signup at this time. Please try again." },
       { status: 500 }

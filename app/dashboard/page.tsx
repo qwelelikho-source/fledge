@@ -1,4 +1,5 @@
 import DeparturesBoard from "@/components/DeparturesBoard";
+import SignOutButton from "@/components/SignOutButton";
 
 const stats = [
   { label: "Revenue (30d)", value: "R1,284.50", delta: "+18%" },
@@ -17,13 +18,19 @@ const products = [
 export default function Dashboard() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-      <p className="font-mono text-xs uppercase tracking-widest text-signal">
-        Demo dashboard
-      </p>
-      <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-        This is what day 30 can look like.
-      </h1>
-      <p className="mt-6 max-w-xl text-lg text-ink/70">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-signal">
+            Demo dashboard
+          </p>
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+            Welcome back
+          </h1>
+        </div>
+        <SignOutButton />
+      </div>
+
+      <p className="max-w-xl text-lg text-ink/70">
         A sample store's dashboard — the same view you'll get once your
         store starts taking orders.
       </p>
