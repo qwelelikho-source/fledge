@@ -6,9 +6,17 @@ interface AnimatedCounterProps {
   value: number;
   suffix?: string;
   duration?: number;
+  formatAsK?: boolean;
+  decimals?: number;
+  className?: string;
 }
 
-function formatValue(value: number) {
+function formatValue(value: number, formatAsK = false, decimals = 0) {
+  if (formatAsK && value >= 1_000) {
+    const formatted = (value / 1_000).toFixed(decimals);
+    return `${formatted.replace(/\.0+$/, "")}K`;
+  }
+
   if (value >= 1_000_000) {
     const formatted = (value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1);
     return `${formatted.replace(/\.0$/, "")}M`;
@@ -26,6 +34,9 @@ export default function AnimatedCounter({
   value,
   suffix = "",
   duration = 1500,
+  formatAsK = false,
+  decimals = 0,
+  className = "",
 }: AnimatedCounterProps) {
   const [count, setCount] = useState(0);
   const hasAnimatedRef = useRef(false);
@@ -76,8 +87,8 @@ export default function AnimatedCounter({
   }, [duration, value]);
 
   return (
-    <div ref={elementRef}>
-      {formatValue(count)}
+    <div ref={elementRef} className={className}>
+      {formatValue(count, formatAsK, decimals)}
       {suffix}
     </div>
   );
