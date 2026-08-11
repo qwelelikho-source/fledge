@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSession } from "@/lib/session";
 import { logger } from "@/lib/logger";
+import { rateLimiters, getClientIdentifier } from "@/lib/rate-limit";
+import { errorResponse } from "@/lib/api-response";
 
 const tokenEndpoints = {
   google: "https://oauth2.googleapis.com/token",
@@ -25,7 +27,16 @@ export async function GET(request: Request, { params }: { params: { provider: st
   const credentials = clientSecrets[providerKey as keyof typeof clientSecrets];
 
   if (!tokenEndpoint || !credentials) {
-    return NextResponse.json({ error: "Unsupported callback provider" }, { status: 400 });
+    return errorResponse("Unsupported callback provider", 400);
+  }
+
+  // Rate limiting
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimiters.auth.check(clientId);
+  
+  if (!rateLimitResult.success) {
+    logger.warn("Rate limit exceeded for OAuth callback", { provider: providerKey, clientId });
+    return NextResponse.redirect(`/signin?error=${encodeURIComponent("Too many authentication attempts. Please try again later.")}`);
   }
 
   const url = new URL(request.url);

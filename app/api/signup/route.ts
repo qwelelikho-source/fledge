@@ -2,6 +2,16 @@ import { NextResponse } from "next/server";
 import { PlanTier, Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { rateLimiters, getClientIdentifier } from "@/lib/rate-limit";
+import { validateSignupInput } from "@/lib/validations/signup";
+import { verifyCsrfToken } from "@/lib/csrf";
+import { 
+  handleApiError, 
+  successResponse, 
+  errorResponse, 
+  conflictResponse, 
+  tooManyRequestsResponse 
+} from "@/lib/api-response";
 
 function calculateAge(dateString: string) {
   const dob = new Date(dateString);
@@ -44,61 +54,52 @@ function splitName(fullName: string) {
 
 export async function POST(request: Request) {
   let pendingUserId: string | null = null;
+  let userEmail = "";
+
+  // Rate limiting
+  const clientId = getClientIdentifier(request);
+  const rateLimitResult = rateLimiters.auth.check(clientId);
+  
+  if (!rateLimitResult.success) {
+    logger.warn("Rate limit exceeded for signup", { clientId });
+    return tooManyRequestsResponse(
+      Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
+    );
+  }
 
   try {
     const body = await request.json();
-    const name = String(body?.name ?? "").trim();
-    const email = String(body?.email ?? "").trim();
-    const idNumber = String(body?.idNumber ?? "").trim();
-    const dateOfBirth = String(body?.dateOfBirth ?? "").trim();
-    const plan = String(body?.plan ?? "").trim();
-    const guardianName = String(body?.guardianName ?? "").trim();
-    const guardianEmail = String(body?.guardianEmail ?? "").trim();
-
-    if (!name) {
-      return NextResponse.json({ error: "Name is required." }, { status: 400 });
+    
+    // Verify CSRF token for form submissions
+    if (body.csrf_token) {
+      const isValidCsrf = await verifyCsrfToken(body.csrf_token);
+      if (!isValidCsrf) {
+        logger.warn("Invalid CSRF token in signup attempt", { clientId });
+        return errorResponse("Invalid security token. Please refresh the page and try again.", 403);
+      }
+    }
+    
+    // Validate input using Zod schema
+    const validationResult = validateSignupInput(body);
+    if (!validationResult.success) {
+      logger.warn("Signup validation failed", { errors: validationResult.errors });
+      return errorResponse("Validation failed", 400, validationResult.errors);
     }
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required." }, { status: 400 });
-    }
-
-    if (!idNumber) {
-      return NextResponse.json({ error: "ID number is required." }, { status: 400 });
-    }
-
-    if (!dateOfBirth) {
-      return NextResponse.json({ error: "Date of birth is required." }, { status: 400 });
-    }
-
-    if (!plan) {
-      return NextResponse.json({ error: "Plan is required." }, { status: 400 });
-    }
+    const { name, email, idNumber, dateOfBirth, plan, guardianName, guardianEmail } = validationResult.data;
+    userEmail = email;
 
     const dob = new Date(dateOfBirth);
-    if (Number.isNaN(dob.getTime())) {
-      return NextResponse.json({ error: "Please provide a valid date of birth." }, { status: 400 });
-    }
-
     const age = calculateAge(dateOfBirth);
     const isMinor = age < 18;
 
-    if (isMinor) {
-      if (!guardianName) {
-        return NextResponse.json({ error: "Guardian name is required for account holders under 18." }, { status: 400 });
-      }
-
-      if (!guardianEmail) {
-        return NextResponse.json({ error: "Guardian email is required for account holders under 18." }, { status: 400 });
-      }
+    if (isMinor && (!guardianName || !guardianEmail)) {
+      return errorResponse("Guardian name and email are required for account holders under 18.");
     }
 
     const existingLocalUser = await prisma.user.findUnique({ where: { email } });
     if (existingLocalUser) {
-      return NextResponse.json(
-        { error: "An account with this email already exists." },
-        { status: 409 }
-      );
+      return conflictResponse("An account with this email already exists.");
     }
 
     const planTier = mapPlanTier(plan);
@@ -135,8 +136,8 @@ export async function POST(request: Request) {
         parentalConsent: isMinor
           ? {
               create: {
-                guardianName,
-                guardianEmail,
+                guardianName: guardianName!,
+                guardianEmail: guardianEmail!,
                 status: "pending",
               },
             }
@@ -144,23 +145,13 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, userId: user.id }, { status: 200 });
+    return successResponse({ userId: user.id });
   } catch (error) {
+    // Reset rate limit on error to allow retry
+    rateLimiters.auth.reset(clientId);
     if (pendingUserId) {
       await prisma.user.delete({ where: { id: pendingUserId } }).catch(() => null);
     }
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return NextResponse.json(
-        { error: "An account with this email already exists." },
-        { status: 409 }
-      );
-    }
-
-    logger.error("Signup API error", error as Error);
-    return NextResponse.json(
-      { error: "Unable to complete signup at this time. Please try again." },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
