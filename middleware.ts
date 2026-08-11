@@ -7,7 +7,10 @@ import { logger } from "@/lib/logger";
 const protectedRoutes = ["/dashboard", "/storefront", "/settings"];
 
 // Routes that should redirect to dashboard if already authenticated
-const authRoutes = ["/signin", "/signup", "/auth"];
+const authRoutes = ["/signin", "/signup"];
+
+// Routes that should be completely bypassed by middleware
+const bypassRoutes = ["/auth", "/api/auth"];
 
 // Security monitoring
 function logSecurityEvent(event: string, details: Record<string, unknown>) {
@@ -22,6 +25,11 @@ export function middleware(request: NextRequest) {
              request.headers.get("x-real-ip") || "unknown";
 
   const isAuthenticated = sessionId ? isValidSession(sessionId) : false;
+
+  // Bypass OAuth-related routes to prevent interference
+  if (bypassRoutes.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
 
   // Log suspicious activities
   if (pathname.includes("..") || pathname.includes("%2e%2e")) {
@@ -58,11 +66,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
+     * - api routes (API routes handle their own security)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files
      */
-    "/((?!_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };

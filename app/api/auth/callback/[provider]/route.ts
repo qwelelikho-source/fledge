@@ -21,6 +21,11 @@ const clientSecrets = {
   },
 };
 
+function absoluteUrl(request: Request, path: string) {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
+  return new URL(path, base).toString();
+}
+
 export async function GET(request: Request, { params }: { params: { provider: string } }) {
   const providerKey = params.provider?.toLowerCase();
   const tokenEndpoint = tokenEndpoints[providerKey as keyof typeof tokenEndpoints];
@@ -36,7 +41,7 @@ export async function GET(request: Request, { params }: { params: { provider: st
   
   if (!rateLimitResult.success) {
     logger.warn("Rate limit exceeded for OAuth callback", { provider: providerKey, clientId });
-    return NextResponse.redirect(`/signin?error=${encodeURIComponent("Too many authentication attempts. Please try again later.")}`);
+    return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent("Too many authentication attempts. Please try again later.")}`));
   }
 
   const url = new URL(request.url);
@@ -46,12 +51,12 @@ export async function GET(request: Request, { params }: { params: { provider: st
 
   if (error) {
     logger.warn("OAuth error from provider", { provider: providerKey, error });
-    return NextResponse.redirect(`/signin?error=${encodeURIComponent(error)}`);
+    return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent(error)}`));
   }
 
   if (!code) {
     logger.warn("Missing authorization code in OAuth callback", { provider: providerKey });
-    return NextResponse.redirect(`/signin?error=${encodeURIComponent("Missing authorization code")}`);
+    return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent("Missing authorization code")}`));
   }
 
   // Verify state parameter for CSRF protection
@@ -60,7 +65,7 @@ export async function GET(request: Request, { params }: { params: { provider: st
   
   if (!storedState || storedState.value !== state) {
     logger.error("Invalid state parameter in OAuth callback", undefined, { provider: providerKey, state, storedState: storedState?.value });
-    return NextResponse.redirect(`/signin?error=${encodeURIComponent("Invalid state parameter")}`);
+    return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent("Invalid state parameter")}`));
   }
 
   // Clear the state cookie
@@ -86,7 +91,7 @@ export async function GET(request: Request, { params }: { params: { provider: st
 
     if (!response.ok) {
       logger.error("OAuth token exchange failed", undefined, { provider: providerKey, tokenData });
-      return NextResponse.redirect(`/signin?error=${encodeURIComponent("OAuth token exchange failed")}`);
+      return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent("OAuth token exchange failed")}`));
     }
 
     // Create a session
@@ -102,9 +107,9 @@ export async function GET(request: Request, { params }: { params: { provider: st
       path: "/",
     });
 
-    return NextResponse.redirect("/dashboard");
+    return NextResponse.redirect(absoluteUrl(request, "/dashboard"));
   } catch (error) {
     logger.error("OAuth authentication failed", error as Error, { provider: providerKey });
-    return NextResponse.redirect(`/signin?error=${encodeURIComponent("Authentication failed")}`);
+    return NextResponse.redirect(absoluteUrl(request, `/signin?error=${encodeURIComponent("Authentication failed")}`));
   }
 }
